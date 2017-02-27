@@ -1,4 +1,4 @@
-/*! ng-google-signin - v0.0.1 2015-08-27 */
+/*! ng-google-signin - v0.1.0 2017-02-27 */
 /**
  * google-signin module
  */
@@ -119,8 +119,8 @@ angular.module("google-signin", []).provider("GoogleSignin", [ function() {
     /**
      * This defines the Google SignIn Service on run.
      */
-    this.$get = [ "$rootScope", "$q", function(b, c) {
-        var d;
+    this.$get = [ "$rootScope", "$q", function(a, b) {
+        var c;
         /**
        * NgGoogle Class
        * Wraps most of the functionality of the Google Sign-In JavaScript
@@ -128,15 +128,15 @@ angular.module("google-signin", []).provider("GoogleSignin", [ function() {
        * https://developers.google.com/identity/sign-in/web/reference
        * @type {Class}
        */
-        var e = function() {};
+        var d = function() {};
         /**
        * Signs in the current user to the app.
        * See {@link https://developers.google.com/identity/sign-in/web/reference#googleauthsignin Google Reference} for more details.
        * @param {} [loginOptions] the options to configure login with
        * @returns {Function|promise}
        */
-        e.prototype.signIn = function(a) {
-            return g(d.signIn(a));
+        d.prototype.signIn = function(a) {
+            return h(c.signIn(a));
         };
         /**
        * Signs out the current user from the app.
@@ -144,8 +144,8 @@ angular.module("google-signin", []).provider("GoogleSignin", [ function() {
        * @returns {Function|promise} Fulfilled when the user has been signed
        * out.
        */
-        e.prototype.signOut = function() {
-            return g(d.signOut());
+        d.prototype.signOut = function() {
+            return h(c.signOut());
         };
         /**
        * Prompts the user to grant offline access for the app.
@@ -153,31 +153,31 @@ angular.module("google-signin", []).provider("GoogleSignin", [ function() {
        * @param {} [options] the options to confgiure offline access with
        * @returns {Function|promise}
        */
-        e.prototype.grantOfflineAccess = function(a) {
-            return g(d.grantOfflineAccess(a));
+        d.prototype.grantOfflineAccess = function(a) {
+            return h(c.grantOfflineAccess(a));
         };
         /**
        * Returns the user's sign in status.
        * See {@link https://developers.google.com/identity/sign-in/web/reference#googleauthissignedinget Google Reference} for more details.
        * @returns {boolean}
        */
-        e.prototype.isSignedIn = function() {
-            return d.isSignedIn.get();
+        d.prototype.isSignedIn = function() {
+            return c.isSignedIn.get();
         };
         /**
        * Gets the current user.
        * See {@link https://developers.google.com/identity/sign-in/web/reference#googleauthcurrentuserget Google Reference} for more details.
        * @returns {*} GoogleUser object
        */
-        e.prototype.getUser = function() {
-            return d.currentUser.get();
+        d.prototype.getUser = function() {
+            return c.currentUser.get();
         };
         /**
        * Gets the basic profile for the current user.
        * See {@link https://developers.google.com/identity/sign-in/web/reference#googleusergetbasicprofile Google Reference} for more details.
        * @returns {*} GoogleUser profile
        */
-        e.prototype.getBasicProfile = function() {
+        d.prototype.getBasicProfile = function() {
             var a = this.getUser().getBasicProfile();
             var b = null;
             if (a) {
@@ -194,30 +194,40 @@ angular.module("google-signin", []).provider("GoogleSignin", [ function() {
        * Disconnects the current user from the app.
        * See {@link https://developers.google.com/identity/sign-in/web/reference#googleauthdisconnect Google Reference} for more details.
        */
-        e.prototype.disconnect = function() {
-            d.disconnect();
+        d.prototype.disconnect = function() {
+            c.disconnect();
         };
+        var e = {};
+        e.scopes = [ "profile", "email" ];
+        var f = b.defer();
         /**
        * This callback handles the onload callback for the GAPI lib
        * @private
        */
-        e.prototype._loadCallback = function() {
-            gapi.load("auth2", f);
+        d.prototype.initGoogle = function(a) {
+            e.client_id = a;
+            gapi.load("auth2", g);
         };
-        return new e();
+        d.prototype.gApiReady = function() {
+            f.resolve();
+        };
+        d.prototype.isReady = function() {
+            return f.promise;
+        };
+        return new d();
         /**
        * Initialization callback called after GAPI is loaded.
        * @private
        */
-        function f() {
-            d = gapi.auth2.init(a);
-            d.currentUser.listen(function(a) {
-                b.$broadcast("ng-google-signin:currentUser", a);
-                b.$apply();
+        function g() {
+            c = gapi.auth2.init(e);
+            c.currentUser.listen(function(b) {
+                a.$broadcast("ng-google-signin:currentUser", b);
+                a.$apply();
             });
-            d.isSignedIn.listen(function(a) {
-                b.$broadcast("ng-google-signin:isSignedIn", a);
-                b.$apply();
+            c.isSignedIn.listen(function(b) {
+                a.$broadcast("ng-google-signin:isSignedIn", b);
+                a.$apply();
             });
         }
         /**
@@ -226,15 +236,15 @@ angular.module("google-signin", []).provider("GoogleSignin", [ function() {
        * @returns {Function|promise} the $q promise
        * @private
        */
-        function g(a) {
-            var b = c.defer();
-            a.then(b.resolve, b.reject);
-            return b.promise;
+        function h(a) {
+            var c = b.defer();
+            a.then(c.resolve, c.reject);
+            return c.promise;
         }
     } ];
 } ]).run([ "$window", "GoogleSignin", function(a, b) {
     // This needs to be on the window for the callback
-    a._startGoogleSignin = b._loadCallback;
+    a._startGoogleSignin = b.gApiReady;
     var c = document.createElement("script");
     c.type = "text/javascript";
     c.async = true;

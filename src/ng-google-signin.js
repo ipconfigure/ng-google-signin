@@ -231,12 +231,27 @@ angular.module('google-signin', []).
         auth2.disconnect();
       };
 
+      var options = {};
+      options.scopes = ['profile', 'email'];
+
+      var gApiPromise = $q.defer();
+
       /**
        * This callback handles the onload callback for the GAPI lib
        * @private
        */
-      NgGoogle.prototype._loadCallback = function () {
-        gapi.load('auth2', _initializeOnLoad);
+      NgGoogle.prototype.initGoogle = function(client_id) {
+        options.client_id = client_id;
+
+        gapi.load('auth2', _initialize);
+      };
+
+      NgGoogle.prototype.gApiReady = function() {
+        gApiPromise.resolve();
+      };
+
+      NgGoogle.prototype.isReady = function() {
+        return gApiPromise.promise;
       };
 
       return new NgGoogle();
@@ -245,7 +260,7 @@ angular.module('google-signin', []).
        * Initialization callback called after GAPI is loaded.
        * @private
        */
-      function _initializeOnLoad() {
+      function _initialize() {
         auth2 = gapi.auth2.init(options);
 
         auth2.currentUser.listen(function (user) {
@@ -278,8 +293,8 @@ angular.module('google-signin', []).
   // Initialization of module
   .run(['$window', 'GoogleSignin', function ($window, GoogleSignin) {
     // This needs to be on the window for the callback
-    $window._startGoogleSignin = GoogleSignin._loadCallback;
 
+    $window._startGoogleSignin = GoogleSignin.gApiReady;
     var po = document.createElement('script');
     po.type = 'text/javascript';
     po.async = true;
