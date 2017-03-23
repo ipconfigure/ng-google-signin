@@ -138,7 +138,7 @@ angular.module('google-signin', []).
     /**
      * This defines the Google SignIn Service on run.
      */
-    this.$get = ['$rootScope', '$q', function ($rootScope, $q) {
+    this.$get = ['$window', '$rootScope', '$q', function ($window, $rootScope, $q) {
       var auth2;
 
       /**
@@ -254,6 +254,18 @@ angular.module('google-signin', []).
         return gApiPromise.promise;
       };
 
+      NgGoogle.prototype.loadDeps = function() {
+        // This needs to be on the window for the callback
+        $window._startGoogleSignin = NgGoogle.prototype.gApiReady;
+        var po = document.createElement('script');
+        po.type = 'text/javascript';
+        po.async = true;
+        po.src =
+          'https://apis.google.com/js/client:platform.js?onload=_startGoogleSignin';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(po, s);
+      };
+
       return new NgGoogle();
 
       /**
@@ -291,15 +303,6 @@ angular.module('google-signin', []).
   }])
 
   // Initialization of module
-  .run(['$window', 'GoogleSignin', function ($window, GoogleSignin) {
-    // This needs to be on the window for the callback
-
-    $window._startGoogleSignin = GoogleSignin.gApiReady;
-    var po = document.createElement('script');
-    po.type = 'text/javascript';
-    po.async = true;
-    po.src =
-      'https://apis.google.com/js/client:platform.js?onload=_startGoogleSignin';
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(po, s);
+  .run([function () {
+    // do nothing yet
   }]);
