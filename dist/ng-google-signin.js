@@ -1,4 +1,4 @@
-/*! ng-google-signin - v0.1.0 2017-03-23 */
+/*! ng-google-signin - v0.1.0 2017-07-11 */
 /**
  * google-signin module
  */
@@ -132,10 +132,11 @@ angular.module("google-signin", []).provider("GoogleSignin", [ function() {
         /**
        * Signs in the current user to the app.
        * See {@link https://developers.google.com/identity/sign-in/web/reference#googleauthsignin Google Reference} for more details.
-       * @param {} [loginOptions] the options to configure login with
        * @returns {Function|promise}
        */
-        e.prototype.signIn = function(a) {
+        e.prototype.signIn = function() {
+            var a = new gapi.auth2.SigninOptionsBuilder();
+            a.setPrompt("select_account");
             return i(d.signIn(a));
         };
         /**

@@ -154,12 +154,12 @@ angular.module('google-signin', []).
       /**
        * Signs in the current user to the app.
        * See {@link https://developers.google.com/identity/sign-in/web/reference#googleauthsignin Google Reference} for more details.
-       * @param {} [loginOptions] the options to configure login with
        * @returns {Function|promise}
        */
-      NgGoogle.prototype.signIn = function (loginOptions) {
-        return _wrapInAngularPromise(auth2.signIn(loginOptions));
-
+      NgGoogle.prototype.signIn = function () {
+        var options = new gapi.auth2.SigninOptionsBuilder();
+        options.setPrompt('select_account');
+        return _wrapInAngularPromise(auth2.signIn(options));
       };
 
       /**
